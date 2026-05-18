@@ -217,32 +217,7 @@ Este projeto mostra domínio em:
 
 ---
 
-## Próximos passos recomendados
 
-Para deixar o **BeautyFlow AI** ainda mais profissional:
-
-1. Adicionar tela de login.
-2. Criar diferentes perfis: administrador, profissional e recepção.
-3. Trocar SQLite por PostgreSQL.
-4. Criar deploy da API.
-5. Criar deploy do frontend.
-6. Integrar WhatsApp Cloud API.
-7. Criar previsão de no-show com Machine Learning.
-8. Criar segmentação de clientes inativos.
-9. Criar análise de fotos com IA, sempre com consentimento.
-10. Criar app mobile com React Native ou Flutter.
-11. Criar dashboard em Power BI conectado ao banco.
-12. Adicionar pagamentos com Mercado Pago ou Stripe.
-
----
-
-## Sugestão de descrição para GitHub
-
-```text
-BeautyFlow AI é um MVP de aplicativo inteligente para negócios da beleza, criado com Python, FastAPI, Streamlit, LLM, IA generativa, RAG e Machine Learning para gestão, atendimento, marketing e recomendação de serviços.
-```
-
----
 
 ## Aviso importante
 
