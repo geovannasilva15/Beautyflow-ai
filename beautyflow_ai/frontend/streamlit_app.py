@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from datetime import datetime, time, timedelta
-from typing import Any
 
 import pandas as pd
-import requests
 import streamlit as st
 
-API_URL = "http://127.0.0.1:8000/api"
+from api_client import api_get, api_online, api_post, format_currency
+from auth import init_auth_state, logout_user, render_login_page
+from styles import apply_global_styles
+
 
 st.set_page_config(
     page_title="BeautyFlow AI",
@@ -16,122 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# -----------------------------------------------------------------------------
-# ESTILO
-# -----------------------------------------------------------------------------
-st.markdown(
-    """
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
-        html, body, [class*="css"] {
-            font-family: 'Inter', sans-serif;
-        }
-
-        .stApp {
-            background:
-                radial-gradient(circle at top left, rgba(236,72,153,0.14), transparent 28%),
-                radial-gradient(circle at top right, rgba(139,92,246,0.14), transparent 28%),
-                linear-gradient(180deg, #fcfbff 0%, #f8f5fb 55%, #ffffff 100%);
-        }
-
-        .block-container {
-            padding-top: 1.6rem !important;
-            padding-bottom: 2rem !important;
-            max-width: 1300px !important;
-        }
-
-        header[data-testid="stHeader"] {
-            background: transparent !important;
-        }
-
-        [data-testid="stToolbar"],
-        [data-testid="stStatusWidget"],
-        footer,
-        #MainMenu {
-            display: none !important;
-            visibility: hidden !important;
-        }
-
-        section[data-testid="stSidebar"] {
-            background: linear-gradient(180deg, #170f22 0%, #281737 55%, #42204d 100%);
-        }
-
-        section[data-testid="stSidebar"] * {
-            color: white !important;
-        }
-
-        .stButton > button {
-            border-radius: 14px !important;
-            border: none !important;
-            background: linear-gradient(135deg, #ec4899, #8b5cf6) !important;
-            color: white !important;
-            font-weight: 800 !important;
-            padding: 0.75rem 1.1rem !important;
-            box-shadow: 0 12px 30px rgba(236,72,153,0.22) !important;
-        }
-
-        .stTextInput input,
-        .stTextArea textarea,
-        .stSelectbox,
-        .stNumberInput input {
-            border-radius: 12px !important;
-        }
-
-        div[data-testid="stMetric"] {
-            background: rgba(255,255,255,0.85);
-            border: 1px solid rgba(236,72,153,0.12);
-            border-radius: 20px;
-            padding: 16px;
-            box-shadow: 0 18px 50px rgba(97,58,139,0.08);
-        }
-
-        div[data-testid="stVerticalBlockBorderWrapper"] {
-            border-radius: 24px !important;
-            background: rgba(255,255,255,0.88) !important;
-            box-shadow: 0 18px 55px rgba(97,58,139,0.08) !important;
-            border: 1px solid rgba(236,72,153,0.12) !important;
-        }
-
-        div[data-testid="stDataFrame"] {
-            border-radius: 18px;
-            overflow: hidden;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-
-# -----------------------------------------------------------------------------
-# API
-# -----------------------------------------------------------------------------
-def api_get(path: str) -> Any:
-    response = requests.get(f"{API_URL}{path}", timeout=20)
-    response.raise_for_status()
-    return response.json()
-
-
-def api_post(path: str, json: dict | None = None, params: dict | None = None) -> Any:
-    response = requests.post(f"{API_URL}{path}", json=json, params=params, timeout=60)
-    response.raise_for_status()
-    return response.json()
-
-
-def api_online() -> bool:
-    try:
-        api_get("/health")
-        return True
-    except Exception:
-        return False
-
-
-# -----------------------------------------------------------------------------
-# HELPERS
-# -----------------------------------------------------------------------------
-def format_currency(value: float | int | None) -> str:
-    value = float(value or 0)
-    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+apply_global_styles()
 
 
 def safe_dataframe(data: list[dict] | pd.DataFrame, empty_message: str) -> pd.DataFrame:
@@ -149,122 +35,6 @@ def page_header(title: str, subtitle: str) -> None:
     st.write("")
 
 
-# -----------------------------------------------------------------------------
-# LOGIN
-# -----------------------------------------------------------------------------
-DEMO_USERS = {
-    "geovanna@beautyflow.ai": {
-        "password": "123456",
-        "name": "Geovanna Silva",
-        "role": "Fundadora",
-    },
-    "admin@beautyflow.ai": {
-        "password": "123456",
-        "name": "Admin BeautyFlow",
-        "role": "Administrador",
-    },
-}
-
-
-def init_auth_state() -> None:
-    if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
-
-    if "user" not in st.session_state:
-        st.session_state.user = None
-
-
-def login_user(email: str, password: str) -> bool:
-    email = email.strip().lower()
-    user = DEMO_USERS.get(email)
-
-    if user and user["password"] == password:
-        st.session_state.authenticated = True
-        st.session_state.user = {
-            "email": email,
-            "name": user["name"],
-            "role": user["role"],
-        }
-        return True
-
-    return False
-
-
-def logout_user() -> None:
-    st.session_state.authenticated = False
-    st.session_state.user = None
-    st.rerun()
-
-
-def render_login_page() -> None:
-    st.markdown(
-        """
-        <style>
-            section[data-testid="stSidebar"] {
-                display: none !important;
-            }
-
-            .block-container {
-                max-width: 520px !important;
-                padding-top: 5rem !important;
-            }
-
-            .stApp {
-                background:
-                    radial-gradient(circle at top left, rgba(236,72,153,0.20), transparent 30%),
-                    radial-gradient(circle at top right, rgba(139,92,246,0.20), transparent 32%),
-                    linear-gradient(135deg, #fff7fb 0%, #f7f1ff 45%, #ffffff 100%);
-            }
-
-            .stButton > button {
-                width: 100% !important;
-            }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("<h1 style='text-align:center;'>💎 BeautyFlow AI</h1>", unsafe_allow_html=True)
-    st.markdown(
-        "<p style='text-align:center;color:#6d607e;'>Plataforma inteligente para gestão de beleza, estética e bem-estar.</p>",
-        unsafe_allow_html=True,
-    )
-
-    st.write("")
-
-    with st.container(border=True):
-        st.markdown("## Entrar no painel")
-        st.caption("Acesse sua central de gestão, agenda, clientes e IA.")
-        st.write("")
-
-        with st.form("login_form_unique_v3"):
-            email = st.text_input("E-mail", value="geovanna@beautyflow.ai")
-            password = st.text_input("Senha", value="123456", type="password")
-
-            submitted = st.form_submit_button("Entrar")
-
-            if submitted:
-                if login_user(email, password):
-                    st.success("Login realizado com sucesso.")
-                    st.rerun()
-                else:
-                    st.error("E-mail ou senha incorretos.")
-
-        st.info(
-            """
-            **Acesso demo**
-
-            E-mail: geovanna@beautyflow.ai  
-            Senha: 123456
-            """
-        )
-
-    st.caption("Projeto MVP para portfólio · Python · IA · Machine Learning")
-
-
-# -----------------------------------------------------------------------------
-# AUTENTICAÇÃO
-# -----------------------------------------------------------------------------
 init_auth_state()
 
 if not st.session_state.authenticated:
@@ -272,9 +42,6 @@ if not st.session_state.authenticated:
     st.stop()
 
 
-# -----------------------------------------------------------------------------
-# SIDEBAR
-# -----------------------------------------------------------------------------
 PAGE_MAP = {
     "🏠 Início": "home",
     "📊 Dashboard": "dashboard",
@@ -285,6 +52,7 @@ PAGE_MAP = {
     "💇 Serviços": "services",
     "📣 Marketing IA": "marketing",
 }
+
 
 with st.sidebar:
     current_user = st.session_state.user
@@ -320,9 +88,6 @@ if not api_online():
     st.stop()
 
 
-# -----------------------------------------------------------------------------
-# PÁGINAS
-# -----------------------------------------------------------------------------
 if page == "home":
     page_header(
         "BeautyFlow AI",
@@ -435,13 +200,13 @@ elif page == "dashboard":
             if not appointments.empty and "status" in appointments.columns:
                 status_df = appointments["status"].value_counts().reset_index()
                 status_df.columns = ["status", "quantidade"]
-                st.dataframe(status_df, use_container_width=True, hide_index=True)
+                st.dataframe(status_df, width="stretch", hide_index=True)
             else:
                 st.info("Sem status para exibir.")
 
     with st.expander("Ver dados brutos"):
         if not appointments.empty:
-            st.dataframe(appointments, use_container_width=True, hide_index=True)
+            st.dataframe(appointments, width="stretch", hide_index=True)
 
 
 elif page == "agenda":
@@ -465,7 +230,7 @@ elif page == "agenda":
         if not clients or not services or not professionals:
             st.warning("Cadastre pelo menos um cliente, um serviço e um profissional antes de criar agendamentos.")
         else:
-            with st.form("appointment_form_unique_v3"):
+            with st.form("appointment_form_unique"):
                 a1, a2, a3 = st.columns(3)
 
                 with a1:
@@ -518,7 +283,7 @@ elif page == "agenda":
         visible_cols = ["scheduled_at", "cliente", "serviço", "profissional", "status", "valor"]
 
         st.markdown("### Agendamentos")
-        st.dataframe(appt_df[visible_cols], use_container_width=True, hide_index=True)
+        st.dataframe(appt_df[visible_cols], width="stretch", hide_index=True)
     else:
         st.info("Nenhum agendamento encontrado.")
 
@@ -633,7 +398,7 @@ elif page == "clients":
     )
 
     with st.expander("Cadastrar cliente", expanded=True):
-        with st.form("client_form_unique_v3"):
+        with st.form("client_form_unique"):
             c1, c2, c3 = st.columns(3)
 
             with c1:
@@ -672,7 +437,7 @@ elif page == "clients":
     clients = safe_dataframe(api_get("/clients"), "Nenhum cliente cadastrado ainda.")
 
     if not clients.empty:
-        st.dataframe(clients, use_container_width=True, hide_index=True)
+        st.dataframe(clients, width="stretch", hide_index=True)
 
 
 elif page == "services":
@@ -682,7 +447,7 @@ elif page == "services":
     )
 
     with st.expander("Cadastrar serviço", expanded=True):
-        with st.form("service_form_unique_v3"):
+        with st.form("service_form_unique"):
             c1, c2 = st.columns(2)
 
             with c1:
@@ -722,7 +487,7 @@ elif page == "services":
         if "price" in services_display.columns:
             services_display["price"] = services_display["price"].apply(format_currency)
 
-        st.dataframe(services_display, use_container_width=True, hide_index=True)
+        st.dataframe(services_display, width="stretch", hide_index=True)
 
 
 elif page == "marketing":
