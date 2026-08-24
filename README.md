@@ -1,224 +1,64 @@
-# BeautyFlow AI
+<div align="center">
 
-**BeautyFlow AI** é um MVP de aplicativo inteligente para salões de beleza, clínicas de estética, barbearias e profissionais autônomos da área da beleza.
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=ec4899&height=180&section=header&text=BeautyFlow%20AI&fontSize=42&fontColor=ffffff&animation=fadeIn&fontAlignY=34&desc=Intelig%C3%AAncia%20aplicada%20%C3%A0%20gest%C3%A3o%20de%20beleza&descAlignY=57" alt="BeautyFlow AI" />
 
-O objetivo do projeto é unir **gestão de agendamentos**, **dashboard de vendas**, **assistente com LLM**, **IA generativa**, **RAG simples** e **recomendação de serviços com Machine Learning** em uma base pronta para evoluir aos poucos.
+</div>
 
-> Projeto criado para portfólio, estudos e evolução profissional em Python, IA generativa, LLMs, Machine Learning e desenvolvimento de aplicações.
+<div align="center">
 
----
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)](#)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Frontend-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](#)
 
-## Problema que o BeautyFlow AI resolve
+**Protótipo de gestão para salões e clínicas, com agenda, relacionamento com clientes, análises e recursos inteligentes.**
 
-Negócios de beleza normalmente precisam lidar com:
+</div>
 
-- Falta de organização em agendamentos.
-- Clientes que não retornam depois do primeiro atendimento.
-- Horários vazios durante a semana.
-- Baixa personalização nas mensagens para clientes.
-- Dificuldade em analisar faturamento, ticket médio e serviços mais vendidos.
-- Pouco uso de dados para recomendar serviços e criar campanhas.
+## Funcionalidades
 
-O **BeautyFlow AI** nasce como uma solução para transformar esses dados em decisões mais inteligentes.
+- Gestão de clientes, serviços e agenda
+- Dashboard com indicadores
+- Recomendação de serviços
+- Assistente para apoio ao atendimento
+- Base de conhecimento e recuperação de informações
+- API com documentação interativa
+- Persistência local com SQLite
 
----
+## Tecnologias
 
-## Funcionalidades já implementadas
+Python, FastAPI, Streamlit, SQLModel, SQLite, Pandas, scikit-learn, OpenAI SDK e Requests.
 
-- Backend com **FastAPI**.
-- Frontend com **Streamlit**.
-- Banco local **SQLite** usando SQLModel.
-- Cadastro e listagem de clientes.
-- Cadastro e listagem de serviços.
-- Cadastro e listagem de profissionais.
-- Criação de agendamentos via API.
-- Atualização de status de agendamentos.
-- Dashboard com métricas do negócio.
-- Receita estimada.
-- Ticket médio.
-- Taxa de no-show.
-- Serviços mais agendados.
-- Assistente IA para gestão e atendimento.
-- Geração de mensagens para WhatsApp.
-- Geração de posts de marketing.
-- Recomendador de serviços usando **TF-IDF + similaridade de cosseno**.
-- RAG simples com base de conhecimento local.
-- Modo fallback sem chave de IA, para testar mesmo sem API externa.
-
----
-
-## Tecnologias utilizadas
-
-- Python 3.11+
-- FastAPI
-- Streamlit
-- SQLModel
-- SQLite
-- Pandas
-- Scikit-learn
-- OpenAI SDK opcional
-- RAG simples com arquivos locais
-- Machine Learning com TF-IDF
-
----
-
-## Estrutura do projeto
-
-```text
-beautyflow_ai/
-  app/
-    api/
-      routes.py
-    core/
-      config.py
-    db/
-      database.py
-      models.py
-    ml/
-      recommender.py
-    schemas/
-      schemas.py
-    services/
-      ai_service.py
-      analytics_service.py
-      rag_service.py
-    main.py
-  data/
-    sample_data.py
-  frontend/
-    streamlit_app.py
-  knowledge_base/
-    beleza.txt
-  .env.example
-  .gitignore
-  PROJECT_ROADMAP.md
-  requirements.txt
-  seed.py
-```
-
----
-
-## Como rodar o projeto
-
-### 1. Entre na pasta do projeto
-
-```bash
-cd beautyflow_ai
-```
-
-### 2. Crie o ambiente virtual
+## Executar localmente
 
 ```bash
 python -m venv .venv
-```
-
-### 3. Ative o ambiente virtual
-
-No Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
-No Linux ou Mac:
-
-```bash
-source .venv/bin/activate
-```
-
-### 4. Instale as dependências
-
-```bash
+# Windows: .venv\Scripts\activate
+# Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-### 5. Configure as variáveis de ambiente
-
-Copie o arquivo `.env.example` para `.env`.
-
-No Windows, você pode copiar manualmente.
-
-No Linux/Mac:
-
-```bash
-cp .env.example .env
-```
-
-O arquivo `.env.example` já vem assim:
-
-```env
-APP_NAME=BeautyFlow AI
-DATABASE_URL=sqlite:///beautyflow_ai.db
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4.1-mini
-```
-
-Sem `OPENAI_API_KEY`, o app funciona com respostas simuladas. Com a chave configurada, ele passa a usar LLM real.
-
-### 6. Crie o banco com dados iniciais
-
-```bash
 python seed.py
+python -m uvicorn app.main:app --reload
 ```
 
-### 7. Rode o backend
+Em outro terminal:
 
 ```bash
-uvicorn app.main:app --reload
+python -m streamlit run frontend/streamlit_app.py
 ```
 
-API:
+## Arquitetura
 
-```text
-http://127.0.0.1:8000
+```mermaid
+flowchart LR
+    UI[Interface] --> API[API FastAPI]
+    API --> DB[(SQLite)]
+    API --> REC[Recomendação]
+    API --> KB[Base de conhecimento]
 ```
 
-Documentação automática:
+## Observação
 
-```text
-http://127.0.0.1:8000/docs
-```
+Este repositório registra uma versão de desenvolvimento do BeautyFlow AI. Credenciais e integrações externas devem ser configuradas por variáveis de ambiente e nunca adicionadas ao código.
 
-### 8. Rode o frontend
+## Autoria
 
-Abra outro terminal, ative o ambiente virtual novamente e execute:
-
-```bash
-streamlit run frontend/streamlit_app.py
-```
-
----
-
-## O que testar primeiro
-
-1. Abra o frontend no Streamlit.
-2. Veja o dashboard inicial.
-3. Teste o assistente IA.
-4. Gere uma mensagem para WhatsApp.
-5. Gere um post de marketing.
-6. Descreva uma cliente no recomendador e veja os serviços sugeridos.
-7. Abra `http://127.0.0.1:8000/docs` para testar a API.
-
----
-
-## Diferenciais para portfólio
-
-Este projeto mostra domínio em:
-
-- Desenvolvimento backend com Python.
-- Criação de API REST com FastAPI.
-- Interface rápida com Streamlit.
-- Banco de dados relacional.
-- Machine Learning aplicado a recomendação.
-- Uso de LLM e IA generativa.
-- Estrutura de RAG com base local.
-- Pensamento de produto para um nicho real.
-- Organização de projeto para GitHub.
-
----
-
-
-
-## Aviso importante
-
-Este projeto é uma base educacional/profissional. Para uso real com clientes, implemente autenticação, criptografia adequada, política de privacidade, controle de permissões, logs, backup, consentimento para dados pessoais e termos de uso.
+Desenvolvido por **[Geovanna Eduarda da Silva](https://github.com/geovannasilva15)**.
